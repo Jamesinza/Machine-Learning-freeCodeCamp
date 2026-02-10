@@ -87,7 +87,7 @@ model = NearestNeighbors(
 model.fit(matrix)
 
 # ---------------------------------------------------
-# Recommendation function (FCC tested)
+# Recommendation function
 # ---------------------------------------------------
 def get_recommends(book=""):
     if book not in title_to_index:
@@ -100,21 +100,23 @@ def get_recommends(book=""):
     for dist, i in zip(distances[0][1:], indices[0][1:]):
         recommendations.append([index_to_title[i], float(dist)])
 
-    return [book, recommendations]
+    recommendations.sort(key=lambda x: x[1], reverse=True)
 
+    return [book, recommendations]
 
 # ---------------------------------------------------
 # Test (provided by FCC)
 # ---------------------------------------------------
 if __name__ == "__main__":
-    books = get_recommends("Where the Heart Is (Oprah's Book Club (Paperback))")
+    book = "Where the Heart Is (Oprah's Book Club (Paperback))"
+    books = get_recommends(book)
     print(books)
 
     def test_book_recommendation():
         test_pass = True
-        recommends = get_recommends("Where the Heart Is (Oprah's Book Club (Paperback))")
+        recommends = get_recommends(book)
 
-        if recommends[0] != "Where the Heart Is (Oprah's Book Club (Paperback))":
+        if recommends[0] != book:
             test_pass = False
 
         recommended_books = [
