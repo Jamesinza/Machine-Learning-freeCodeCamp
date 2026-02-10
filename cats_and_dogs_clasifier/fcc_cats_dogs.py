@@ -1,5 +1,3 @@
-# fcc_cats_dogs.py
-
 import tensorflow as tf
 
 from tensorflow.keras.models import Sequential
@@ -31,7 +29,7 @@ print(f'\nLength of total_test: {total_test}\n')
 
 # Variables for pre-processing and training.
 batch_size = 128
-epochs = 1000
+epochs = 30
 IMG_HEIGHT = 150
 IMG_WIDTH = 150
 
@@ -116,11 +114,11 @@ def conv_block(x, dims):
     return x
     
 inputs = Input(shape=(IMG_HEIGHT,IMG_WIDTH,3))
-x = conv_block(inputs, 16)
-x = conv_block(x, 32)
+x = conv_block(inputs, 32)
 x = conv_block(x, 64)
+x = conv_block(x, 128)
 x = GlobalAveragePooling2D()(x)
-x = Dense(128, activation='relu')(x)
+x = Dense(64, activation='relu')(x)
 outputs = Dense(1, activation='sigmoid')(x)  # binary classification
 model = tf.keras.Model(inputs, outputs)
 
@@ -135,8 +133,8 @@ model.summary()
 
 # 8
 callbacks = [
-    tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True, verbose=1),
-    tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=3),
+    tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True, verbose=1),
+    tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=5),
 ]
 
 history = model.fit(
