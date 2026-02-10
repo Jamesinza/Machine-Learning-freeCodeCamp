@@ -55,7 +55,7 @@ val_data_gen = validation_image_generator.flow_from_directory(
 
 test_data_gen = test_image_generator.flow_from_directory(
     batch_size=1,
-    directory=f'{test_dir}/test_images',
+    directory=test_dir,
     target_size=(IMG_HEIGHT, IMG_WIDTH),
     class_mode=None,
     shuffle=False
