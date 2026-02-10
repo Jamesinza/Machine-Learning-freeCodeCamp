@@ -29,7 +29,7 @@ print(f'\nLength of total_test: {total_test}\n')
 
 # Variables for pre-processing and training.
 batch_size = 128
-epochs = 30
+epochs = 1000
 IMG_HEIGHT = 150
 IMG_WIDTH = 150
 
@@ -61,7 +61,6 @@ test_data_gen = test_image_generator.flow_from_directory(
     shuffle=False
 )
 
-
 # 4
 def plotImages(images_arr, probabilities = False):
     fig, axes = plt.subplots(len(images_arr), 1, figsize=(5,len(images_arr) * 3))
@@ -82,7 +81,6 @@ def plotImages(images_arr, probabilities = False):
 # sample_training_images, _ = next(train_data_gen)
 # plotImages(sample_training_images[:5])
 
-
 # 5
 train_image_generator = ImageDataGenerator(
     rescale=1./255,
@@ -95,7 +93,6 @@ train_image_generator = ImageDataGenerator(
     fill_mode='nearest'
 )
 
-
 # 6
 train_data_gen = train_image_generator.flow_from_directory(batch_size=batch_size,
                                                      directory=train_dir,
@@ -107,7 +104,7 @@ train_data_gen = train_image_generator.flow_from_directory(batch_size=batch_size
 
 # 7
 def conv_block(x, dims):
-    x = Conv2D(dims, 3, padding='same')(x)
+    x = Conv2D(dims, 3)(x)
     x = Activation('relu')(x)
     x = MaxPooling2D(2)(x)
     x = Dropout(0.3)(x)
@@ -118,7 +115,7 @@ x = conv_block(inputs, 32)
 x = conv_block(x, 64)
 x = conv_block(x, 128)
 x = GlobalAveragePooling2D()(x)
-x = Dense(64, activation='relu')(x)
+x = Dense(256, activation='relu')(x)
 outputs = Dense(1, activation='sigmoid')(x)  # binary classification
 model = tf.keras.Model(inputs, outputs)
 
@@ -126,10 +123,7 @@ model.compile(optimizer='adamw',
               loss='binary_crossentropy',
               metrics=['accuracy'],
              )
-
-
 model.summary()
-
 
 # 8
 callbacks = [
@@ -146,29 +140,28 @@ history = model.fit(
     callbacks=callbacks
 )
 
-
 # 9
-acc = history.history['accuracy']
-val_acc = history.history['val_accuracy']
+#acc = history.history['accuracy']
+#val_acc = history.history['val_accuracy']
 
-loss = history.history['loss']
-val_loss = history.history['val_loss']
+#loss = history.history['loss']
+#val_loss = history.history['val_loss']
 
-epochs_range = range(epochs)
+#epochs_range = range(epochs)
 
-plt.figure(figsize=(8, 8))
-plt.subplot(1, 2, 1)
-plt.plot(epochs_range, acc, label='Training Accuracy')
-plt.plot(epochs_range, val_acc, label='Validation Accuracy')
-plt.legend(loc='lower right')
-plt.title('Training and Validation Accuracy')
+#plt.figure(figsize=(8, 8))
+#plt.subplot(1, 2, 1)
+#plt.plot(epochs_range, acc, label='Training Accuracy')
+#plt.plot(epochs_range, val_acc, label='Validation Accuracy')
+#plt.legend(loc='lower right')
+#plt.title('Training and Validation Accuracy')
 
-plt.subplot(1, 2, 2)
-plt.plot(epochs_range, loss, label='Training Loss')
-plt.plot(epochs_range, val_loss, label='Validation Loss')
-plt.legend(loc='upper right')
-plt.title('Training and Validation Loss')
-plt.show()
+#plt.subplot(1, 2, 2)
+#plt.plot(epochs_range, loss, label='Training Loss')
+#plt.plot(epochs_range, val_loss, label='Validation Loss')
+#plt.legend(loc='upper right')
+#plt.title('Training and Validation Loss')
+# plt.show()
 
 # 10
 probabilities = model.predict(test_data_gen).flatten()  # get a 1D array
