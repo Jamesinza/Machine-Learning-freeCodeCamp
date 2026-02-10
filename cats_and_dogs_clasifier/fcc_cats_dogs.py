@@ -10,6 +10,11 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+# # Get project files
+# !wget https://cdn.freecodecamp.org/project-data/cats-and-dogs/cats_and_dogs.zip
+
+# !unzip cats_and_dogs.zip
+
 PATH = 'cats_and_dogs'
 
 train_dir = os.path.join(PATH, 'train')
@@ -52,11 +57,12 @@ val_data_gen = validation_image_generator.flow_from_directory(
 
 test_data_gen = test_image_generator.flow_from_directory(
     batch_size=1,
-    directory=test_dir,  # tricky: test_dir must have subfolder for flow_from_directory
+    directory=f'{test_dir}/test_images',
     target_size=(IMG_HEIGHT, IMG_WIDTH),
     class_mode=None,
     shuffle=False
 )
+
 
 # 4
 def plotImages(images_arr, probabilities = False):
@@ -78,6 +84,7 @@ def plotImages(images_arr, probabilities = False):
 # sample_training_images, _ = next(train_data_gen)
 # plotImages(sample_training_images[:5])
 
+
 # 5
 train_image_generator = ImageDataGenerator(
     rescale=1./255,
@@ -89,6 +96,7 @@ train_image_generator = ImageDataGenerator(
     horizontal_flip=True,
     fill_mode='nearest'
 )
+
 
 # 6
 train_data_gen = train_image_generator.flow_from_directory(batch_size=batch_size,
@@ -121,7 +129,9 @@ model.compile(optimizer='adamw',
               metrics=['accuracy'],
              )
 
+
 model.summary()
+
 
 # 8
 callbacks = [
@@ -137,6 +147,7 @@ history = model.fit(
     validation_steps=total_val // batch_size,
     callbacks=callbacks
 )
+
 
 # 9
 acc = history.history['accuracy']
