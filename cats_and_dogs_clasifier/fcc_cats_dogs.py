@@ -1,31 +1,73 @@
-import tensorflow as tf
+import os
+import numpy as np
+import zipfile
+import shutil
+import urllib.request
 
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, GlobalAveragePooling2D, Input, Activation
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-import os
-import numpy as np
 import matplotlib.pyplot as plt
 
-# # Get project files
-# !wget https://cdn.freecodecamp.org/project-data/cats-and-dogs/cats_and_dogs.zip
 
-# !unzip cats_and_dogs.zip
+URL = "https://cdn.freecodecamp.org/project-data/cats-and-dogs/cats_and_dogs.zip"
+ZIP_NAME = "cats_and_dogs.zip"
+PATH = "cats_and_dogs"
 
-PATH = 'cats_and_dogs'
+train_dir = os.path.join(PATH, "train")
+validation_dir = os.path.join(PATH, "validation")
+test_dir = os.path.join(PATH, "test")
+test_images_dir = os.path.join(test_dir, "test_images")
 
-train_dir = os.path.join(PATH, 'train')
-validation_dir = os.path.join(PATH, 'validation')
-test_dir = os.path.join(PATH, 'test')
 
-# Get number of files in each directory. The train and validation directories
-# each have the subdirecories "dogs" and "cats".
-total_train = sum([len(files) for r, d, files in os.walk(train_dir)])
-total_val = sum([len(files) for r, d, files in os.walk(validation_dir)])
-total_test = len(os.listdir(f'{test_dir}/test_images'))
+def download_dataset():
+    if os.path.exists(PATH):
+        print("Dataset already exists. Skipping download.")
+        return
 
-print(f'\nLength of total_test: {total_test}\n')
+    if not os.path.exists(ZIP_NAME):
+        print("Downloading dataset...")
+        urllib.request.urlretrieve(URL, ZIP_NAME)
+
+    print("Extracting dataset...")
+    with zipfile.ZipFile(ZIP_NAME, "r") as zip_ref:
+        zip_ref.extractall(".")
+
+    print("Dataset ready.")
+
+
+def organize_test_directory():
+    if not os.path.exists(test_images_dir):
+        os.makedirs(test_images_dir)
+
+    for file in os.listdir(test_dir):
+        src = os.path.join(test_dir, file)
+        dst = os.path.join(test_images_dir, file)
+
+        if os.path.isfile(src):
+            shutil.move(src, dst)
+
+    print("Test images organized.")
+
+
+def count_files():
+    total_train = sum(len(files) for _, _, files in os.walk(train_dir))
+    total_val = sum(len(files) for _, _, files in os.walk(validation_dir))
+    total_test = len(os.listdir(test_images_dir))
+
+    return total_train, total_val, total_test
+
+# Get data
+download_dataset()
+organize_test_directory()
+
+total_train, total_val, total_test = count_files()
+
+print(f"Train images: {total_train}")
+print(f"Validation images: {total_val}")
+print(f"Test images: {total_test}")
 
 # Variables for pre-processing and training.
 batch_size = 128
@@ -114,8 +156,9 @@ inputs = Input(shape=(IMG_HEIGHT,IMG_WIDTH,3))
 x = conv_block(inputs, 32)
 x = conv_block(x, 64)
 x = conv_block(x, 128)
+x = conv_block(x, 256)
 x = GlobalAveragePooling2D()(x)
-x = Dense(256, activation='relu')(x)
+x = Dense(128, activation='relu')(x)
 outputs = Dense(1, activation='sigmoid')(x)  # binary classification
 model = tf.keras.Model(inputs, outputs)
 
